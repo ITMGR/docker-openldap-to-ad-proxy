@@ -1,0 +1,139 @@
+#
+# See slapd.conf(5) for details on configuration options.
+# This file should NOT be world readable.
+#
+
+include         __SCHEMADIR__/microsoftattributetype.schema
+include         __SCHEMADIR__/microsoftattributetypestd.schema
+include         __SCHEMADIR__/corba.schema
+include         __SCHEMADIR__/core.schema
+include         __SCHEMADIR__/cosine.schema
+include         __SCHEMADIR__/duaconf.schema
+include         __SCHEMADIR__/dyngroup.schema
+include         __SCHEMADIR__/inetorgperson.schema
+include         __SCHEMADIR__/java.schema
+include         __SCHEMADIR__/misc.schema
+include         __SCHEMADIR__/nis.schema
+include         __SCHEMADIR__/openldap.schema
+include         __SCHEMADIR__/ppolicy.schema
+include         __SCHEMADIR__/collective.schema
+include         __SCHEMADIR__/microsoftobjectclass.schema
+
+
+# Allow LDAPv2 client connections.  This is NOT the default.
+allow bind_v2
+
+# Do not enable referrals until AFTER you have a working directory
+# service AND an understanding of referrals.
+#referral       ldap://root.openldap.org
+
+pidfile         /var/run/openldap/slapd.pid
+argsfile        /var/run/openldap/slapd.args
+
+# Load dynamic backend modules
+# - modulepath is architecture dependent value (32/64-bit system)
+# - back_sql.la overlay requires openldap-server-sql package
+# - dyngroup.la and dynlist.la cannot be used at the same time
+
+# modulepath /usr/lib/openldap
+# modulepath /usr/lib64/openldap
+
+# moduleload accesslog.la
+# moduleload auditlog.la
+# moduleload back_sql.la
+# moduleload chain.la
+# moduleload collect.la
+# moduleload constraint.la
+# moduleload dds.la
+# moduleload deref.la
+# moduleload dyngroup.la
+# moduleload dynlist.la
+# moduleload memberof.la
+# moduleload pbind.la
+# moduleload pcache.la
+# moduleload ppolicy.la
+# moduleload refint.la
+# moduleload retcode.la
+moduleload rwm.la
+# moduleload seqmod.la
+# moduleload smbk5pwd.la
+# moduleload sssvlv.la
+# moduleload syncprov.la
+# moduleload translucent.la
+# moduleload unique.la
+# moduleload valsort.la
+
+# The next three lines allow use of TLS for encrypting connections using a
+# dummy test certificate which you can generate by running
+# /usr/libexec/openldap/generate-server-cert.sh. Your client software may balk
+# at self-signed certificates, however.
+TLSCACertificatePath /etc/pki/ca-trust/source/anchors/
+
+TLSCACertificateFile   /etc/pki/ca-trust/source/anchors/SoftonicCAroot.pem
+#TLSCertificateFile      /etc/pki/tls/certs/openldap-sys.marathon.cell-1.mad.mesos.crt
+#TLSCertificateKeyFile   /etc/pki/tls/private/openldap-sys.marathon.cell-1.mad.mesos.key
+
+TLSCertificateFile      certificatefile
+TLSCertificateKeyFile   certificatekey
+
+# Sample security restrictions
+#       Require integrity protection (prevent hijacking)
+#       Require 112-bit (3DES or better) encryption for updates
+#       Require 63-bit encryption for simple bind
+# security ssf=1 update_ssf=112 simple_bind=64
+
+# Sample access control policy:
+#       Root DSE: allow anyone to read it
+#       Subschema (sub)entry DSE: allow anyone to read it
+#       Other DSEs:
+#               Allow self write access
+#               Allow authenticated users read access
+#               Allow anonymous users to authenticate
+#       Directives needed to implement policy:
+# access to dn.base="" by * read
+# access to dn.base="cn=Subschema" by * read
+# access to *
+#       by self write
+#       by users read
+#       by anonymous auth
+#
+# if no access controls are present, the default policy
+# allows anyone and everyone to read anything but restricts
+# updates to rootdn.  (e.g., "access to * by * read")
+#
+# rootdn can always read and write EVERYTHING!
+
+# enable on-the-fly configuration (cn=config)
+database config
+access to *
+        by dn.exact="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" manage
+        by * none
+
+# enable server status monitoring (cn=monitor)
+database monitor
+access to *
+        by dn.exact="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" read
+        by dn.exact="cn=Manager,dc=example,dc=com" read
+        by * none
+
+#######################################################################
+# database definitions
+#######################################################################
+
+#######################################################################
+# Configuration backend providing config and schema settings
+#######################################################################
+database        config
+rootdn          "cn=config"
+rootpw          secret
+
+#### Database definition (Proxy to AD) #########################################
+database                ldap
+readonly                yes
+protocol-version        3
+rebind-as-user
+uri                     "ldaps://IP_ACTIVED:636 ldap://IP_ACTIVED:389"
+suffix                  "DC=domino,DC=softonic,DC=com"
+overlay                 rwm
+rwm-map                 attribute       uid     sAMAccountName
+rwm-map                 attribute       mail    proxyAddresses
