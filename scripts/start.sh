@@ -3,15 +3,15 @@
 #CERTS
 
 
-CERT=''
-CERTKEY=''
 
+#CERT="openldap-sys.marathon.cell-1.mad.mesos.crt"
+#CERTKEY="openldap-sys.marathon.cell-1.mad.mesos.key"
 
 PATHCERTS=$(echo "$PATHENV" | sed 's/\//\\\//g')
 
 
-#CERT=$CERTENV
-#CERTKEY=$CERTKEYENV
+CERT=$CERTENV
+CERTKEY=$CERTKEYENV
 CACERT=$CACERTENV
 
 D=`dirname $0`/..
@@ -32,8 +32,9 @@ sed "s/dc=example,dc=com/$ROOTDN/g;s|__SCHEMADIR__|$SCHEMADIR|g;s/^rootpw.*$/roo
 
 cp ${SLAPDCONF} /etc/openldap
 
-
 update-ca-trust force-enable
+update-ca-trust extract
+hostname openldap-sys.marathon.cell-1.mad.mesos
 
 # Setup the LDAP schema
 mkdir -p /etc/openldap/slapd.d.new

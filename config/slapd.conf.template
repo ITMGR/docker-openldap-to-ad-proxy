@@ -77,6 +77,7 @@ TLSCertificateFile      certificatefile
 TLSCertificateKeyFile   certificatekey
 
 # Sample security restrictions
+TLSVerifyClient demand
 #       Require integrity protection (prevent hijacking)
 #       Require 112-bit (3DES or better) encryption for updates
 #       Require 63-bit encryption for simple bind
@@ -102,6 +103,10 @@ TLSCertificateKeyFile   certificatekey
 # updates to rootdn.  (e.g., "access to * by * read")
 #
 # rootdn can always read and write EVERYTHING!
+#
+
+loglevel 256
+
 
 # enable on-the-fly configuration (cn=config)
 database config
@@ -132,8 +137,20 @@ database                ldap
 readonly                yes
 protocol-version        3
 rebind-as-user
-uri                     "ldaps://IP_ACTIVED:636 ldap://IP_ACTIVED:389"
+uri                     "ldaps://IP_ACTIVED:636"
 suffix                  "DC=domino,DC=softonic,DC=com"
 overlay                 rwm
 rwm-map                 attribute       uid     sAMAccountName
 rwm-map                 attribute       mail    proxyAddresses
+#
+#    map             attribute "display-name" "displayname"
+#    map             attribute cn            *
+#    map             attribute sn            *
+#    map             attribute givenname     *
+#    map             attribute mail          *
+#    map             attribute telephonenumber *
+#    map             attribute usercertificate;binary *
+#    map             attribute *
+#    map             objectclass person      *
+#    map             objectclass inetorgperson       *
+#    map             objectclass *
