@@ -1,5 +1,5 @@
 docker run \
-	  -v /root/docker/openldap/certs:/etc/openldap/remotecerts 
+	  -v /root/docker/openldap/certs:/etc/openldap/remotecerts \
 	  -e PATHENV="/etc/openldap/remotecerts/" \
 	  -e PASSWORDENV=my_secret \
           -e IPENV=my_IP \
