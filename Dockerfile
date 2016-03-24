@@ -12,13 +12,7 @@ COPY schema /opt/docker/schema
 
 COPY scripts /opt/docker/scripts
 
-COPY certs/*crt /etc/pki/tls/certs/
-
 COPY certs/*.pem /etc/pki/ca-trust/source/anchors/
-
-COPY certs/*key /etc/pki/tls/private/
-
-COPY certs/* /etc/openldap/certs/
 
 WORKDIR /opt/docker/scripts
 

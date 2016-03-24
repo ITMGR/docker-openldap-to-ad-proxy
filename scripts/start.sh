@@ -1,15 +1,9 @@
 #!/bin/bash
 
-#CERTS
-
-
-
-PATHCERTS=$(echo "$PATHENV" | sed 's/\//\\\//g')
 
 HOSTNAME=$HOSTENV
-CERT=$CERTENV
-CERTKEY=$CERTKEYENV
-CACERT=$CACERTENV
+URLCAEXTRACT=$URLCAEXTRACTENV
+CANAME=${CAFILEENV}
 
 D=`dirname $0`/..
 SLAPDCONFTEMPLATE=${D}/config/slapd.conf.template
@@ -23,9 +17,13 @@ ROOTDN=$ROOTDNENV
 ROOTPW=$PASSWORDENV
 IP=$IPENV
 
-sed "s/dc=example,dc=com/$ROOTDN/g;s|__SCHEMADIR__|$SCHEMADIR|g;s/^rootpw.*$/rootpw     $ROOTPW/g;s/^acl-passwd.*$/acl-passwd $ROOTPW/g;s/IP_ACTIVED/$IP/g;s/TLSCertificateFile      certificatefile/TLSCertificateFile      $PATHCERTS$CERT/g;s/TLSCertificateKeyFile   certificatekey/TLSCertificateKeyFile   $PATHCERTS$CERTKEY/g;" ${SLAPDCONFTEMPLATE} >${SLAPDCONF}
+sed "s/dc=example,dc=com/$ROOTDN/g;s|__SCHEMADIR__|$SCHEMADIR|g;s/^rootpw.*$/rootpw     $ROOTPW/g;s/^acl-passwd.*$/acl-passwd $ROOTPW/g;s/IP_ACTIVED/$IP/g;s/^TLSCACertificateFile     certificatecafile/TLSCACertificateFile     \/etc\/pki\/ca-trust\/source\/anchors\/$CANAME/g;" ${SLAPDCONFTEMPLATE} >${SLAPDCONF}
 
 cp ${SLAPDCONF} /etc/openldap
+
+curl $URLCAEXTRACT -o /tmp/cafile.pem
+
+cp /tmp/cafile.pem /etc/pki/ca-trust/source/anchors/
 
 update-ca-trust force-enable
 update-ca-trust extract

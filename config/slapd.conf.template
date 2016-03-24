@@ -69,15 +69,9 @@ moduleload rwm.la
 # at self-signed certificates, however.
 TLSCACertificatePath /etc/pki/ca-trust/source/anchors/
 
-TLSCACertificateFile   /etc/pki/ca-trust/source/anchors/SoftonicCAroot.pem
-#TLSCertificateFile      /etc/pki/tls/certs/openldap-sys.marathon.cell-1.mad.mesos.crt
-#TLSCertificateKeyFile   /etc/pki/tls/private/openldap-sys.marathon.cell-1.mad.mesos.key
-
-TLSCertificateFile      certificatefile
-TLSCertificateKeyFile   certificatekey
+TLSCACertificateFile     certificatecafile
 
 # Sample security restrictions
-TLSVerifyClient demand
 #       Require integrity protection (prevent hijacking)
 #       Require 112-bit (3DES or better) encryption for updates
 #       Require 63-bit encryption for simple bind
