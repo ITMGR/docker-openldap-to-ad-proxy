@@ -4,12 +4,9 @@
 
 
 
-#CERT="openldap-sys.marathon.cell-1.mad.mesos.crt"
-#CERTKEY="openldap-sys.marathon.cell-1.mad.mesos.key"
-
 PATHCERTS=$(echo "$PATHENV" | sed 's/\//\\\//g')
 
-
+HOSTNAME=$HOSTENV
 CERT=$CERTENV
 CERTKEY=$CERTKEYENV
 CACERT=$CACERTENV
@@ -28,13 +25,11 @@ IP=$IPENV
 
 sed "s/dc=example,dc=com/$ROOTDN/g;s|__SCHEMADIR__|$SCHEMADIR|g;s/^rootpw.*$/rootpw     $ROOTPW/g;s/^acl-passwd.*$/acl-passwd $ROOTPW/g;s/IP_ACTIVED/$IP/g;s/TLSCertificateFile      certificatefile/TLSCertificateFile      $PATHCERTS$CERT/g;s/TLSCertificateKeyFile   certificatekey/TLSCertificateKeyFile   $PATHCERTS$CERTKEY/g;" ${SLAPDCONFTEMPLATE} >${SLAPDCONF}
 
-#sed "s/dc=example,dc=com/$ROOTDN/g;s|__SCHEMADIR__|$SCHEMADIR|g;s/^rootpw.*$/rootpw     $ROOTPW/g;s/^acl-passwd.*$/acl-passwd $ROOTPW/g;s/IP_ACTIVED/$IP/g;s/TLSCertificateFile.*$/TLSCertificateFile      $CERT/g;" ${SLAPDCONFTEMPLATE} >${SLAPDCONF}
-
 cp ${SLAPDCONF} /etc/openldap
 
 update-ca-trust force-enable
 update-ca-trust extract
-hostname openldap-sys.marathon.cell-1.mad.mesos
+hostname $HOSTNAME
 
 # Setup the LDAP schema
 mkdir -p /etc/openldap/slapd.d.new
